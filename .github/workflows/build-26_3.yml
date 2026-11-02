@@ -1,0 +1,27 @@
+name: Build 26.3
+on:
+  workflow_dispatch:
+  push:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          # 25 compiles/runs MC 26.3; 22 is the toolchain the buildSrc plugins ask for
+          java-version: |
+            22
+            25
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x gradlew
+      - name: Build 26.3 jar (full log kept for error reports)
+        run: ./gradlew :modules:versions:mc263:fabric:build --stacktrace --no-configuration-cache 2>&1 | tee build.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: photonics-26.3
+          path: |
+            modules/versions/26_3/fabric/build/libs/*.jar
+            build.log
