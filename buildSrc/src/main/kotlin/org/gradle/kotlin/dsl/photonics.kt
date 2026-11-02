@@ -44,6 +44,9 @@ value class PhotonicsCommonDependenciesScope(
     private fun add(configuration: String, dependencyNotation: Any?, action: Action<ExternalModuleDependency>) {
         if (dependencyNotation is Provider<*>) {
             addConfiguredDependencyTo(backing.dependencies, configuration, dependencyNotation, action)
+        } else if (dependencyNotation is org.gradle.api.file.FileCollection) {
+            // local jars (files(...)) are not module dependencies, so the action must not be applied
+            backing.dependencies.add(configuration, dependencyNotation)
         } else {
             addDependencyTo(backing.dependencies, configuration, dependencyNotation!!, action)
         }
